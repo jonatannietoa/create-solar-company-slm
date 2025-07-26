@@ -76,11 +76,11 @@ pip install mlx-lm
 huggingface-cli login
 
 # Download base model (note: You need to accept the terms of service in the Hugging Face website, in the model)
-huggingface-cli download mistralai/Mistral-7B-Instruct-v0.2
+huggingface-cli download mistralai/Mistral-7B-Instruct-v0.3
 
 # Run training
 python -m mlx_lm.lora \
-    --model mistralai/Mistral-7B-Instruct-v0.2 \
+    --model mistralai/Mistral-7B-Instruct-v0.3 \
     --train \
     --data ./training-data \
     --adapter-path ./adapter \
@@ -88,7 +88,7 @@ python -m mlx_lm.lora \
 
 # Fuse adapter with base model
 python -m mlx_lm fuse \
-    --model mistralai/Mistral-7B-Instruct-v0.2 \
+    --model mistralai/Mistral-7B-Instruct-v0.3 \
     --adapter-path ./adapter \
     --save-path ./mistral_solar_fuse_1
 
