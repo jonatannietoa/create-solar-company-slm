@@ -27,6 +27,8 @@ This project creates a domain-specific language model that provides personalized
 - Python 3.8+
 - Apple Silicon Mac (for MLX optimization)
 - Hugging Face account and CLI access
+- Create a new repository on Hugging Face Hub
+- Create a new API key for Hugging Face Hub with write permissions
 
 ### Installation
 
