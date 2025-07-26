@@ -46,6 +46,18 @@ This project creates a domain-specific language model that provides personalized
    ```
    This will fine-tune the model using LoRA with the solar panel dataset.
 
+3. **Fuse the adapter to the model**:
+   ```bash
+   ./3-fuse-fine-tuning-to-model.sh
+   ```
+   This will merge the LoRA adapter weights with the base model for deployment.
+
+4. **Test the model**:
+   ```bash
+   ./4-test-slm.sh
+   ```
+   This will run a test prompt to verify the model is working correctly.
+
 ### Manual Setup
 
 If you prefer to set up manually:
@@ -71,21 +83,33 @@ python -m mlx_lm.lora \
     --data ./training-data \
     --adapter-path ./adapter \
     --iters 200
+
+# Fuse adapter with base model
+python -m mlx_lm fuse \
+    --model mistralai/Mistral-7B-Instruct-v0.2 \
+    --adapter-path ./adapter \
+    --save-path ./mistral_solar_fuse_1
+
+# Test the model
+python -m mlx_lm.generate --model ./mistral_solar_fuse_1 --prompt "Tengo una masia en Catalunya de 380m2, ¿qué me recomiendas? Nota: no quiero inversor Huawei."
 ```
 
 ## Project Structure
 
 ```
 create-slm/
-├── README.md                    # This file
-├── 1-create-environment.sh      # Environment setup script
-├── 2-training-script.sh         # Training execution script
-├── .venv/                       # Python virtual environment
-├── training-data/               # Training datasets
-│   ├── train.jsonl             # Training data in JSONL format
-│   └── valid.jsonl             # Validation data
-└── adapter/                     # LoRA adapter weights
-    └── adapter_config.json     # Adapter configuration
+├── README.md                         # This file
+├── 1-create-environment.sh           # Environment setup script
+├── 2-training-script.sh              # Training execution script
+├── 3-fuse-fine-tuning-to-model.sh    # Fuse adapter with base model
+├── 4-test-slm.sh                     # Test the trained model
+├── .venv/                            # Python virtual environment
+├── training-data/                    # Training datasets
+│   ├── train.jsonl                  # Training data in JSONL format
+│   └── valid.jsonl                  # Validation data
+├── adapter/                          # LoRA adapter weights
+│   └── adapter_config.json          # Adapter configuration
+└── mistral_solar_fuse_1/             # Fused model (created after step 3)
 ```
 
 ## Training Data Format
@@ -120,11 +144,15 @@ The trained model can provide recommendations for:
 
 ## Usage Examples
 
-After training, you can use the model to get solar panel recommendations:
+After training and fusing, you can use the model to get solar panel recommendations:
 
-**Input**: "Tengo un chalet grande de 240m2 en una sola planta. Es una casa 4 vientos. ¿Qué me sugerís?"
+**Test Input**: "Tengo una masia en Catalunya de 380m2, ¿qué me recomiendas? Nota: no quiero inversor Huawei."
 
-**Expected Output**: "En una casa de 240m², te recomendamos una instalación de 22 paneles solares TONGWEI Solar de 435W FULLBLACK. Con esto, obtendrías una potencia total de 9.57 kW, ideal para un alto consumo. El sistema funcionaría con un inversor Huawei SUN2000."
+**Expected Behavior**: The model should provide a recommendation considering the large size (380m²), the Catalan location, and specifically avoid Huawei inverters per the user's request.
+
+**Training Example**:
+- **Input**: "Tengo un chalet grande de 240m2 en una sola planta. Es una casa 4 vientos. ¿Qué me sugerís?"
+- **Expected Output**: "En una casa de 240m², te recomendamos una instalación de 22 paneles solares TONGWEI Solar de 435W FULLBLACK. Con esto, obtendrías una potencia total de 9.57 kW, ideal para un alto consumo. El sistema funcionaría con un inversor Huawei SUN2000."
 
 ## Technical Details
 
@@ -134,6 +162,14 @@ After training, you can use the model to get solar panel recommendations:
 - **Method**: LoRA (Low-Rank Adaptation)
 - **Base Model**: Mistral-7B-Instruct-v0.2
 - **Data Format**: Conversational JSONL
+- **Deployment**: Fused adapter + base model for standalone inference
+
+### Model Deployment Process
+
+1. **Training**: LoRA adapter is trained on solar panel data
+2. **Fusing**: Adapter weights are merged with the base model
+3. **Testing**: Model is validated with domain-specific prompts
+4. **Result**: Standalone model ready for deployment
 
 ### Hardware Requirements
 
